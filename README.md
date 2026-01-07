@@ -1,5 +1,11 @@
 # FIDO
 
+HACKATIME PROOF
+
+
+<img width="343" height="251" alt="image" src="https://github.com/user-attachments/assets/b7bea3ed-3957-4b03-bbfa-58fd64f34bd8" />
+
+
 FIDO - Dog Library
 Hi! I made this thing called FIDO. It's basically a website where you can look at different dog breeds. I was tired of boring dog websites so I made one that's actually fun to use with extra features...
 
