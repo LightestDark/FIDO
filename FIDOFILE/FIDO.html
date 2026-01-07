@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIDO - Dog Breeds Library</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, sans-serif;
+            background: #0a0a0a;
+            color: #eee;
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Light mode */
+        body.light-mode {
+            background: #f5f7fa;
+            color: #333;
+        }
+        
+        /* RAINBOW MODE - FIXED */
+        @keyframes fullRainbow {
+            0% { background: #ff0000; }
+            20% { background: #ff8000; }
+            40% { background: #ffff00; }
+            60% { background: #00ff00; }
+            80% { background: #0000ff; }
+            100% { background: #ff00ff; }
+        }
+        
+        body.rainbow-mode {
+            animation: fullRainbow 2s linear infinite;
+        }
+        
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(20, 20, 20, 0.95);
+            padding: 1rem 2rem;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #4dabf7;
+            backdrop-filter: blur(10px);
+        }
+        
+        body.light-mode header {
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom-color: #2b2d42;
+        }
+        
+        .title-area h1 {
+            font-size: 1.8rem;
+            color: #4dabf7;
+        }
+        
+        body.light-mode .title-area h1 {
+            color: #2b2d42;
+        }
+        
+        .author {
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-top: 0.2rem;
+        }
+        
+        /* Buttons */
+        .controls {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .control-btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        #themeBtn {
+            background: #2b2d42;
+            color: white;
+        }
+        
+        #surpriseBtn {
+            background: #e63946;
+            color: white;
+        }
+        
+        #barkBtn {
+            background: #ffb347;
+            color: #333;
+            font-weight: bold;
+        }
+        
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        
+        /* Main content */
+        main {
+            margin-top: 80px;
+        }
+        
+        /* Dog cards */
+        .dog-card {
+            min-height: 100vh;
+            padding: 3rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .dog-card:nth-child(odd) {
+            background: #111;
+        }
+        
+        .dog-card:nth-child(even) {
+            background: #0d0d0d;
+        }
+        
+        body.light-mode .dog-card:nth-child(odd) {
+            background: #fff;
+        }
+        
+        body.light-mode .dog-card:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        body.rainbow-mode .dog-card {
+            background: rgba(0,0,0,0.7) !important;
+            backdrop-filter: blur(5px);
+        }
+        
+        /* Card content */
+        .card-content {
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+        
+        /* Dog photo */
+        .photo-box {
+            border-radius: 16px;
+            overflow: hidden;
+            height: 550px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            position: relative;
+        }
+        
+        .dog-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+        
+        .dog-img:hover {
+            transform: scale(1.03);
+        }
+        
+        /* Dog info */
+        .dog-info {
+            padding: 1rem;
+        }
+        
+        .dog-name {
+            font-size: 2.8rem;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+        
+        body.light-mode .dog-name {
+            color: #222;
+        }
+        
+        .dog-from {
+            color: #aaa;
+            font-style: italic;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .size-label {
+            display: inline-block;
+            padding: 0.5rem 1.2rem;
+            background: #2b2d42;
+            color: #adb5bd;
+            border-radius: 20px;
+            margin-bottom: 1.5rem;
+            font-weight: bold;
+        }
+        
+        /* Traits */
+        .traits {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .trait {
+            padding: 0.5rem 1rem;
+            background: #1a1a1a;
+            color: #ccc;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            border: 1px solid #333;
+        }
+        
+        body.light-mode .trait {
+            background: #e9ecef;
+            color: #495057;
+            border-color: #dee2e6;
+        }
+        
+        /* Text sections */
+        .text-box {
+            margin-bottom: 2rem;
+            padding: 1.8rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            border-left: 4px solid #4dabf7;
+        }
+        
+        body.light-mode .text-box {
+            background: rgba(0,0,0,0.03);
+        }
+        
+        .text-title {
+            color: white;
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        body.light-mode .text-title {
+            color: #222;
+        }
+        
+        .text-body {
+            color: #ccc;
+            line-height: 1.7;
+            font-size: 1.1rem;
+        }
+        
+        body.light-mode .text-body {
+            color: #444;
+        }
+        
+        /* Fun fact */
+        .fun-fact {
+            background: rgba(230, 57, 70, 0.1);
+            border-left-color: #e63946;
+        }
+        
+        /* Scroll dots */
+        .dots {
+            position: fixed;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+        }
+        
+        .dot {
+            width: 14px;
+            height: 14px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .dot:hover {
+            transform: scale(1.4);
+        }
+        
+        .dot.active {
+            background: #4dabf7;
+            transform: scale(1.6);
+            box-shadow: 0 0 10px rgba(74, 171, 247, 0.5);
+        }
+        
+        body.light-mode .dot {
+            background: rgba(0,0,0,0.2);
+        }
+        
+        /* Card number */
+        .card-num {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        /* Floating emoji */
+        .float-emoji {
+            position: fixed;
+            font-size: 2rem;
+            z-index: 9999;
+            pointer-events: none;
+            animation: floatUp 4s ease-out forwards;
+        }
+        
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        /* Bark animation */
+        @keyframes barkShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .barking {
+            animation: barkShake 0.3s ease-in-out 3;
+        }
+        
+        /* Mobile */
+        @media (max-width: 1024px) {
+            .card-content {
+                grid-template-columns: 1fr;
+                gap: 2.5rem;
+            }
+            
+            .photo-box {
+                height: 450px;
+                max-width: 700px;
+                margin: 0 auto;
+            }
+            
+            .dog-name {
+                font-size: 2.2rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+                text-align: center;
+            }
+            
+            main {
+                margin-top: 140px;
+            }
+            
+            .dog-card {
+                padding: 2rem 1rem;
+            }
+            
+            .controls {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .control-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="title-area">
+            <h1>FIDO 🐕</h1>
+            <div class="author">Made by Abdul Wase</div>
+        </div>
+        <div class="controls">
+            <button class="control-btn" id="themeBtn">
+                <i class="fas fa-moon"></i> Theme
+            </button>
+            <button class="control-btn" id="surpriseBtn">
+                <i class="fas fa-rainbow"></i> Surprise
+            </button>
+            <button class="control-btn" id="barkBtn">
+                <i class="fas fa-volume-up"></i> Bark!
+            </button>
+        </div>
+    </header>
+    
+    <main id="dogCards">
+        <!-- Dogs loaded here -->
+    </main>
+    
+    <div class="dots" id="scrollDots">
+        <!-- Dots added here -->
+    </div>
+
+<script>
+// CORRECT WORKING DOG IMAGES - SIMPLE LINKS
+const dogs = [
+    {
+        name: "Labrador Retriever",
+        origin: "Newfoundland, Canada",
+        size: "Large",
+        traits: ["Friendly", "Active", "Family Dog", "Smart", "Loyal"],
+        desc: "The most popular dog breed in the United States for over 30 years. Originally bred as fishing dogs in Newfoundland, they would retrieve fishing nets and catch fish that escaped from hooks. Labs come in three colors: black, yellow, and chocolate. They're known for their friendly, outgoing personalities and gentle nature with children. These dogs are highly intelligent, eager to please, and relatively easy to train. They have a water-resistant double coat and webbed feet, making them excellent swimmers. Labs need plenty of exercise and can be prone to obesity if not properly managed. They're generally healthy but can be predisposed to certain conditions like hip dysplasia.",
+        fact: "Labrador Retrievers have 'otter tails' - thick at the base and tapering toward the tip, which helps them steer while swimming like a rudder! This unique tail design is perfect for their original job as water retrievers.",
+       img: "https://www.101dogbreeds.com/wp-content/uploads/2018/10/Labrador-Retrievers.jpg"
+    },
+    {
+        name: "German Shepherd",
+        origin: "Germany",
+        size: "Large",
+        traits: ["Smart", "Loyal", "Protective", "Courageous", "Confident"],
+        desc: "Originally bred for herding sheep in Germany, German Shepherds are now among the most versatile working breeds in the world. They're commonly employed in police and military roles, as service dogs, and in search and rescue operations. With their noble character, keen intelligence, and exceptional loyalty, they excel at almost any task they're trained to do. German Shepherds have a double coat that can be either medium or long, and they shed year-round. They require proper socialization and training from an early age. These dogs form incredibly strong bonds with their families and are naturally protective. Despite their serious working reputation, they can be playful and affectionate with their loved ones.",
+        fact: "German Shepherds have an incredible sense of smell - about 100,000 times more sensitive than humans! This makes them excellent detection dogs for explosives, drugs, and missing persons. Some can even detect certain medical conditions like low blood sugar or cancer.",
+        img: "https://royvon.co.uk/wp-content/uploads/2017/01/GermanShepherdTips.jpg"
+    },
+    {
+        name: "Golden Retriever",
+        origin: "Scotland, United Kingdom",
+        size: "Large",
+        traits: ["Friendly", "Intelligent", "Devoted", "Kind", "Family Dog"],
+        desc: "One of the most popular dog breeds worldwide, originally bred in Scotland as gun dogs to retrieve shot waterfowl during hunting. They're characterized by their dense, water-repellent golden coat, gentle expression, and kind eyes. These dogs are highly trainable and excel in obedience competitions. They're often used as guide dogs for the blind, therapy dogs, and search-and-rescue dogs because of their temperament and intelligence. Goldens have a natural love of water and are strong swimmers. They get along with everyone - people, other dogs, even cats. These dogs need regular exercise and thrive when they have a job to do. They're known for their patient nature with children.",
+        fact: "Golden Retrievers have a 'soft mouth' bred into them for retrieving game without damage. They can carry an egg in their mouth without breaking it! This trait was essential for their original job as hunting retrievers, allowing them to bring back birds without damaging the game.",
+        img: "https://tse3.mm.bing.net/th/id/OIP.LjrXCO33dyYt6EkF9lDqagHaE8?rs=1&pid=ImgDetMain&o=7&rm=3"
+    },
+    {
+        name: "French Bulldog",
+        origin: "France",
+        size: "Small",
+        traits: ["Affectionate", "Playful", "Adaptable", "Comical", "Loving"],
+        desc: "French Bulldogs are compact, muscular dogs with a smooth coat, snub nose, and trademark 'bat ears'. Originally bred as miniature Bulldogs in England, they became popular in France as companion dogs for lace workers. Frenchies are known for their even temperament, affectionate nature, and minimal barking. They're excellent apartment dogs due to their small size and relatively low exercise needs. Despite their sometimes serious expression, French Bulldogs are comical, entertaining, and utterly devoted to their families. They require minimal grooming but need attention to their facial folds to prevent infections. These dogs are sensitive to extreme temperatures and shouldn't be left outside for long periods.",
+        fact: "French Bulldogs can't swim! Their heavy front bodies, short legs, and flat faces make swimming difficult and dangerous for them. They require life jackets near water and should never be left unsupervised around pools, lakes, or any body of water.",
+        img: "https://www.selectadogbreed.com/media/1041/frenchbulldog_adult.jpg"
+    },
+    {
+        name: "Bulldog",
+        origin: "England",
+        size: "Medium",
+        traits: ["Calm", "Friendly", "Courageous", "Willful", "Gentle"],
+        desc: "Bulldogs are medium-sized dogs with loose, wrinkly skin and a distinctive pushed-in nose. They were originally bred in England for bull-baiting (hence the name), but modern Bulldogs are much gentler than their ancestors. These dogs have a sweet, gentle disposition and form strong bonds with their families. They're known for being excellent with children. Bulldogs are relatively low-energy indoors and don't require extensive exercise. They snore loudly, drool, and are prone to passing gas due to their unique facial structure. These dogs need regular cleaning of their facial folds to prevent infections. They're sensitive to heat and should be kept in air-conditioned environments during warm weather.",
+        fact: "Bulldogs are the mascot for hundreds of schools, universities, and sports teams worldwide! Notable examples include Yale University, the University of Georgia, Mississippi State University, and the iconic Mack truck bulldog. Their tough appearance makes them popular symbols of strength and determination.",
+        img: "https://th.bing.com/th/id/R.4c67d53226a40fc5087abaf3b4467e1e?rik=gflSGMRo8JTa%2fw&riu=http%3a%2f%2fwww.mascotarios.org%2fwp-content%2fgallery%2fbulldog%2fbulldog3.jpg&ehk=3kJaEQ3Jv6DrKxCS3Chebw7xqC7pfrjpAOZV8osso2I%3d&risl=&pid=ImgRaw&r=0"
+    },
+    {
+        name: "Poodle",
+        origin: "Germany/France",
+        size: "Medium",
+        traits: ["Smart", "Active", "Proud", "Athletic", "Elegant"],
+        desc: "Poodles come in three size varieties: Standard, Miniature, and Toy. Despite their fancy appearance, they were originally bred as water retrievers in Germany. Their distinctive clip was designed to protect joints and organs from cold water while allowing free movement. Poodles are exceptionally intelligent, ranking second only to Border Collies. They're highly trainable and excel in obedience, agility, and tracking. Poodles have a hypoallergenic, curly coat that requires regular grooming. They're active dogs that enjoy both mental and physical challenges. Contrary to their sometimes 'frou-frou' reputation, Poodles are excellent athletes and working dogs. They're known for their proud carriage and elegant movement.",
+        fact: "Poodles were originally bred as duck hunters! Their elaborate haircuts served a practical purpose - the pom-poms kept joints warm in cold water while the shaved areas reduced drag, making them more efficient swimmers. The traditional show clip has its roots in functional hunting gear.",
+        img: "https://tse2.mm.bing.net/th/id/OIP.azylfPIJh1VrhCazOUHcJgHaD0?rs=1&pid=ImgDetMain&o=7&rm=3"
+    },
+    {
+        name: "Beagle",
+        origin: "England",
+        size: "Medium",
+        traits: ["Curious", "Friendly", "Merry", "Food-Obsessed", "Determined"],
+        desc: "Beagles are small to medium-sized hound dogs with a great sense of smell and tracking instinct. They were originally bred as scent hounds for tracking small game like rabbits. Beagles have a distinctive bay or howl when they catch a scent, which can be quite loud for their size. They're excellent family companions due to their even temper and gentle disposition. Beagles come in two size varieties (13-inch and 15-inch) and have a short, easy-to-care-for coat. They require regular exercise and mental stimulation to prevent boredom-related behaviors. These dogs are notorious escape artists and will follow their noses wherever they lead. Beagles are generally good with children and other pets.",
+        fact: "Beagles' sense of smell is about 1,000 times better than humans! They have approximately 220 million scent receptors compared to humans' 5 million. This incredible nose makes them excellent detection dogs at airports, where they're used to sniff out prohibited food items and agricultural products.",
+        img: "https://th.bing.com/th/id/R.71552b5687dd02d647168c351c835cc3?rik=nxtag%2bQpC6qmiA&pid=ImgRaw&r=0"
+    },
+    {
+        name: "Rottweiler",
+        origin: "Germany",
+        size: "Large",
+        traits: ["Confident", "Loyal", "Protective", "Calm", "Courageous"],
+        desc: "Rottweilers are powerful working dogs descended from the mastiffs of the Roman legions. They were originally used to drive cattle to market and pull carts for butchers. Rottweilers are robust, muscular dogs with black coats and distinctive rust markings. They're confident, courageous, and naturally protective of their families. With proper training and socialization, they're calm, loyal companions. These dogs require consistent training, early socialization, and regular exercise to be well-adjusted family members. They have a natural guarding instinct and make excellent watchdogs. Rottweilers are intelligent and respond well to positive training methods. They form strong bonds with their families and are often gentle with children they know.",
+        fact: "Rottweilers have one of the strongest bite forces among dog breeds - about 328 pounds per square inch! That's more than twice the bite force of a human. Despite this, they're typically gentle with proper training and socialization, and their powerful jaws were originally bred for gripping and holding cattle.",
+        img: "https://www.thesprucepets.com/thmb/9mcXYODzPNFecHyQO7oyFqLWGD0=/3862x2578/filters:no_upscale():max_bytes(150000):strip_icc()/headshot-of-rottweiler-678833089-5873e32f3df78c17b60f57a6.jpg"
+    },
+    {
+        name: "Siberian Husky",
+        origin: "Siberia, Russia",
+        size: "Large",
+        traits: ["Energetic", "Independent", "Friendly", "Vocal", "Mischievous"],
+        desc: "Siberian Huskies are medium-sized working dogs bred by the Chukchi people of Siberia to pull light loads over long distances. They're known for their striking appearance, with thick double coats, erect triangular ears, and distinctive markings. Huskies are athletic, energetic, and independent thinkers. They're friendly dogs that typically get along with everyone, including strangers and other dogs. Their high energy levels and strong prey drive require secure fencing and plenty of exercise. Huskies are famous for their vocalizations, including howls, 'talking', and whines - they're not big barkers. They have a strong pack instinct and do best with canine companionship. These dogs shed heavily twice a year in a process called 'blowing coat'.",
+        fact: "Huskies can run up to 100 miles in a single day! Their endurance is legendary, and they were essential for survival in Arctic conditions. Modern sled dog races like the Iditarod still feature Huskies and similar breeds, covering over 1,000 miles through Alaska's wilderness.",
+        img: "https://breedadvisor.com/wp-content/uploads/2020/02/SIBERIAN-HUSKY-PORTRAIT.jpg"
+    },
+    {
+        name: "Dachshund - SAUSAGE DAWGG!",
+        origin: "Germany",
+        size: "Small",
+        traits: ["Clever", "Stubborn", "Courageous", "Loyal", "Curious"],
+        desc: "Dachshunds, also known as 'wiener dogs', were bred in Germany to hunt badgers. Their long, low bodies were perfect for digging into badger setts. They come in three coat varieties (smooth, wirehaired, and longhaired) and two sizes (standard and miniature). Dachshunds are curious, clever, and often stubborn. They're devoted to their families but can be wary of strangers. Due to their long backs, they're prone to spinal issues and should avoid jumping on/off furniture. Dachshunds have surprisingly loud barks for their size and make excellent watchdogs. Despite their small size, they have big personalities and require consistent training. These dogs love to burrow under blankets, a behavior that traces back to their hunting origins.",
+        fact: "Dachshunds were the first Olympic mascot! Waldi the Dachshund was the official mascot of the 1972 Munich Olympics, chosen for his athletic, tenacious, and agile qualities. He started the tradition of Olympic mascots and was designed with the Olympic colors in his stripes.",
+        img: "https://th.bing.com/th/id/R.703323f8a0fc6500ea22a57965b11035?rik=nsL5ToJt4wdHFg&riu=http%3a%2f%2fanimalsbreeds.com%2fwp-content%2fuploads%2f2014%2f07%2fDachshund.jpg&ehk=QEhPycZ%2b4DGMPM0NyEMDSGpMcMTn4%2bg5qRAhoafVdV8%3d&risl=&pid=ImgRaw&r=0"
+    },
+    {
+        name: "Border Collie",
+        origin: "United Kingdom",
+        size: "Medium",
+        traits: ["Intelligent", "Energetic", "Workaholic", "Responsive", "Athletic"],
+        desc: "Border Collies are widely considered the most intelligent dog breed. They were developed on the border between England and Scotland for herding sheep. These dogs are workaholics - they need a job to do or they can develop destructive behaviors. Border Collies have an intense stare called 'the eye' that they use to control sheep. They're super athletic and excel at dog sports like agility, flyball, and obedience. These dogs need tons of exercise and mental stimulation. They form incredibly strong bonds with their handlers. Border Collies are not great for first-time dog owners - they're too smart and energetic for casual pet owners. They thrive when given tasks to complete and problems to solve.",
+        fact: "A Border Collie named Chaser learned over 1,000 words - she could identify 1,022 different toys by name! That's the largest tested memory of any non-human animal. She could also understand basic grammar and could be told to fetch specific toys from another room.",
+        img: "https://images.ctfassets.net/550nf1gumh01/6dWe4W0fQAJNbTT2GOVoOv/15f5188d1867ea7bdcf5b610d0a699c7/iStock-1420601907.jpg"
+    },
+    {
+        name: "Shih Tzu",
+        origin: "China",
+        size: "Small",
+        traits: ["Affectionate", "Playful", "Outgoing", "Alert", "Companion"],
+        desc: "Shih Tzus are small companion dogs originally bred as palace pets for Chinese royalty. Their name means 'lion dog' in Mandarin, reflecting their association with Buddhist mythology. Shih Tzus have long, flowing double coats that require daily grooming. Despite their luxurious appearance, they're sturdy, alert, and lively companions. They're known for their sweet, friendly nature and get along well with children, other pets, and strangers. Shih Tzus are indoor dogs that adapt well to apartment living. They have a distinctive underbite and large, dark eyes that give them a human-like expression. They're generally healthy but can be prone to certain genetic conditions due to their flat faces.",
+        fact: "Shih Tzus were so prized in Imperial China that for years, the Chinese refused to sell, trade, or give any away! The first pairs didn't leave China until the 1930s. They were considered royal dogs and were often given as gifts to foreign dignitaries as a sign of great honor.",
+        img: "https://static.vecteezy.com/system/resources/previews/024/571/692/large_2x/shih-tzu-dog-on-the-street-shih-tzu-is-a-breed-of-dog-in-the-shih-tzu-family-ai-generated-free-photo.jpg"
+    },
+    {
+        name: "Australian Shepherd - GO AUSSIES",
+        origin: "United States",
+        size: "Medium",
+        traits: ["Smart", "Energetic", "Work-focused", "Loyal", "Agile"],
+        desc: "Despite their name, Australian Shepherds were developed in the United States to herd livestock. They're medium-sized, athletic dogs known for their intelligence and versatility. Aussies have medium-length coats that come in various colors and patterns, often with striking blue or multicolored eyes. They're highly intelligent and energetic, requiring plenty of physical and mental stimulation. Australian Shepherds excel in dog sports, obedience, and of course, herding. They form strong bonds with their families and can be reserved with strangers. Without sufficient activity, they may develop behavioral issues. They're best suited for active households with plenty of space to run and work.",
+        fact: "Australian Shepherds often have different colored eyes (heterochromia)! This striking feature is common in the breed and adds to their unique appearance. Some Aussies even have eyes that are partially blue and partially brown in the same iris, a condition called sectoral heterochromia.",
+        img: "https://cdn.orvis.com/images/DBS_AusShep_1280.jpg"
+    },
+    {
+        name: "Corgi",
+        origin: "Wales, United Kingdom",
+        size: "Small",
+        traits: ["Smart", "Alert", "Friendly", "Active", "Playful"],
+        desc: "Corgis come in two varieties: Pembroke Welsh Corgi and Cardigan Welsh Corgi. They were originally bred as herding dogs in Wales. Despite their short legs, they're surprisingly quick and agile. Corgis are intelligent, alert, and make excellent watchdogs. They're known for their friendly and outgoing personalities. Corgis have a double coat that sheds heavily, especially during seasonal changes. They're active dogs that enjoy playtime and walks. Corgis are highly trainable but can be stubborn at times. They're generally good with children and other pets when properly socialized. Their adorable appearance has made them internet celebrities in recent years, with many famous Corgis having large social media followings.",
+        fact: "According to Welsh legend, Corgis were the preferred mount of fairy warriors! The markings on their backs were said to be left by fairy saddles. Another legend says that Corgis were a gift from the woodland fairies to humans, which is why they have such magical, cheerful personalities.",
+        img: "https://media-be.chewy.com/wp-content/uploads/2021/06/29102244/PembrokeWelshCorgi-FeaturedImage.jpg"
+    },
+    {
+        name: "Great Dane",
+        origin: "Germany",
+        size: "Giant",
+        traits: ["Friendly", "Patient", "Gentle", "Loyal", "Majestic"],
+        desc: "Great Danes are massive dogs often called 'gentle giants'. They were originally bred to hunt wild boar in Germany. These dogs are huge but think they're lap dogs - they'll try to sit on you despite their size. They drool a lot and their tails can clear coffee tables with one swipe. Great Danes don't live as long as smaller breeds, usually 7-10 years. They're surprisingly gentle with kids despite their size. These dogs need lots of space and food (like, a lot of food). They're usually pretty lazy indoors despite their size. Great Danes make excellent family pets for those with enough space, and their calm demeanor makes them wonderful companions.",
+        fact: "The tallest dog ever recorded was a Great Dane named Zeus who stood 44 inches tall at the shoulder - that's almost 4 feet! When standing on his hind legs, he reached 7 feet 4 inches tall. Despite his massive size, he was known for his gentle nature and love of children.",
+        img: "https://www.thesprucepets.com/thmb/KR2XuI5fLShUsp15C8SC8T6sra4=/1280x853/filters:fill(auto,1)/great-dane-129741288-resized-56a26a905f9b58b7d0c9fe74.jpg"
+    }
+];
+
+// Get elements
+const themeBtn = document.getElementById('themeBtn');
+const surpriseBtn = document.getElementById('surpriseBtn');
+const barkBtn = document.getElementById('barkBtn');
+const dogCards = document.getElementById('dogCards');
+const scrollDots = document.getElementById('scrollDots');
+
+// Theme
+let isDark = localStorage.getItem('fido-theme') !== 'light';
+if (!isDark) {
+    document.body.classList.add('light-mode');
+    themeBtn.innerHTML = '<i class="fas fa-sun"></i> Light';
+} else {
+    themeBtn.innerHTML = '<i class="fas fa-moon"></i> Dark';
+}
+
+// Theme toggle
+themeBtn.onclick = () => {
+    if (document.body.classList.contains('light-mode')) {
+        document.body.classList.remove('light-mode');
+        themeBtn.innerHTML = '<i class="fas fa-moon"></i> Dark';
+        localStorage.setItem('fido-theme', 'dark');
+    } else {
+        document.body.classList.add('light-mode');
+        themeBtn.innerHTML = '<i class="fas fa-sun"></i> Light';
+        localStorage.setItem('fido-theme', 'light');
+    }
+};
+
+// Rainbow mode - FIXED SIMPLE VERSION
+let rainbowOn = false;
+surpriseBtn.onclick = () => {
+    if (!rainbowOn) {
+        document.body.classList.add('rainbow-mode');
+        surpriseBtn.innerHTML = '<i class="fas fa-rainbow"></i> Rainbow!';
+        surpriseBtn.style.background = 'linear-gradient(135deg, #ff0000, #ff8000, #ffff00, #00ff00, #00ffff, #0000ff, #8000ff)';
+        rainbowOn = true;
+        
+        // Floating emojis
+        const emojis = ['🐕', '🐶', '🦮', '🐩', '🐕‍🦺', '🐾', '🌈', '✨', '🌟', '🎉'];
+        for (let i = 0; i < 15; i++) {
+            setTimeout(() => {
+                const emoji = document.createElement('div');
+                emoji.className = 'float-emoji';
+                emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                emoji.style.left = Math.random() * 100 + 'vw';
+                emoji.style.fontSize = (Math.random() * 40 + 20) + 'px';
+                emoji.style.animationDuration = (Math.random() * 2 + 3) + 's';
+                document.body.appendChild(emoji);
+                setTimeout(() => emoji.remove(), 5000);
+            }, i * 150);
+        }
+        
+        console.log("🌈 FULL PAGE RAINBOW MODE ACTIVATED! 🌈");
+    } else {
+        document.body.classList.remove('rainbow-mode');
+        surpriseBtn.innerHTML = '<i class="fas fa-rainbow"></i> Surprise';
+        surpriseBtn.style.background = '#e63946';
+        rainbowOn = false;
+    }
+};
+
+// Bark button with sound - FIXED SIMPLE VERSION
+barkBtn.onclick = () => {
+    try {
+        // Create simple bark sound
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        // Simple bark sound
+        oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.1);
+        oscillator.frequency.setValueAtTime(300, audioContext.currentTime + 0.1);
+        oscillator.frequency.exponentialRampToValueAtTime(150, audioContext.currentTime + 0.2);
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+        
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.3);
+        
+        // Visual feedback
+        barkBtn.classList.add('barking');
+        barkBtn.innerHTML = '<i class="fas fa-volume-up"></i> RUFF!';
+        barkBtn.style.background = '#ff8c00';
+        
+        // Add bark text
+        const barkText = document.createElement('div');
+        barkText.textContent = 'RUFF!';
+        barkText.style.position = 'fixed';
+        barkText.style.top = '50%';
+        barkText.style.left = '50%';
+        barkText.style.transform = 'translate(-50%, -50%)';
+        barkText.style.fontSize = '5rem';
+        barkText.style.fontWeight = 'bold';
+        barkText.style.color = '#ff8c00';
+        barkText.style.zIndex = '9999';
+        barkText.style.pointerEvents = 'none';
+        barkText.style.opacity = '0.8';
+        barkText.style.textShadow = '0 0 20px rgba(255,140,0,0.7)';
+        document.body.appendChild(barkText);
+        
+        setTimeout(() => {
+            barkBtn.classList.remove('barking');
+            barkBtn.innerHTML = '<i class="fas fa-volume-up"></i> Bark!';
+            barkBtn.style.background = '#ffb347';
+            barkText.remove();
+        }, 1000);
+        
+    } catch (e) {
+        // Fallback
+        console.log("Bark!");
+        barkBtn.classList.add('barking');
+        barkBtn.innerHTML = '<i class="fas fa-volume-up"></i> BARK!';
+        setTimeout(() => {
+            barkBtn.classList.remove('barking');
+            barkBtn.innerHTML = '<i class="fas fa-volume-up"></i> Bark!';
+        }, 1000);
+    }
+};
+
+// Create dog cards
+function createCards() {
+    dogCards.innerHTML = '';
+    scrollDots.innerHTML = '';
+    
+    dogs.forEach((dog, i) => {
+        // Card
+        const card = document.createElement('div');
+        card.className = 'dog-card';
+        card.id = 'dog' + i;
+        
+        card.innerHTML = `
+            <div class="card-content">
+                <div class="photo-box">
+                    <img src="${dog.img}" alt="${dog.name}" class="dog-img" loading="lazy">
+                    <div class="card-num">${i + 1}</div>
+                </div>
+                
+                <div class="dog-info">
+                    <h2 class="dog-name">${dog.name}</h2>
+                    <p class="dog-from">${dog.origin}</p>
+                    <div class="size-label">${dog.size}</div>
+                    
+                    <div class="traits">
+                        ${dog.traits.map(t => `<span class="trait">${t}</span>`).join('')}
+                    </div>
+                    
+                    <div class="text-box">
+                        <h3 class="text-title"><i class="fas fa-paw"></i> About This Breed</h3>
+                        <p class="text-body">${dog.desc}</p>
+                    </div>
+                    
+                    <div class="text-box fun-fact">
+                        <h3 class="text-title"><i class="fas fa-lightbulb"></i> Fun Fact</h3>
+                        <p class="text-body">${dog.fact}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        dogCards.appendChild(card);
+        
+        // Dot
+        const dot = document.createElement('div');
+        dot.className = 'dot';
+        dot.onclick = () => {
+            document.getElementById('dog' + i).scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+            });
+        };
+        scrollDots.appendChild(dot);
+    });
+    
+    setupScroll();
+}
+
+// Track scroll
+function setupScroll() {
+    const cards = document.querySelectorAll('.dog-card');
+    const dots = document.querySelectorAll('.dot');
+    
+    function updateDots() {
+        let activeIndex = 0;
+        let mostVisible = 0;
+        
+        cards.forEach((card, i) => {
+            const rect = card.getBoundingClientRect();
+            const visible = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
+            
+            if (visible > mostVisible) {
+                mostVisible = visible;
+                activeIndex = i;
+            }
+        });
+        
+        dots.forEach((dot, i) => {
+            dot.classList.toggle('active', i === activeIndex);
+        });
+    }
+    
+    window.addEventListener('scroll', updateDots);
+    window.addEventListener('resize', updateDots);
+    updateDots();
+}
+
+// Click photo -> next dog
+document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('dog-img') || e.target.closest('.photo-box')) {
+        const card = e.target.closest('.dog-card');
+        if (!card) return;
+        
+        const next = card.nextElementSibling;
+        if (next) {
+            next.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            document.getElementById('dog0').scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+});
+
+// Keyboard nav
+document.addEventListener('keydown', (e) => {
+    if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
+    
+    const activeDot = document.querySelector('.dot.active');
+    const activeIndex = activeDot ? 
+        Array.from(document.querySelectorAll('.dot')).indexOf(activeDot) : 0;
+    
+    if (e.key === 'ArrowDown' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        const next = Math.min(activeIndex + 1, dogs.length - 1);
+        document.getElementById('dog' + next).scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+        e.preventDefault();
+        const prev = Math.max(activeIndex - 1, 0);
+        document.getElementById('dog' + prev).scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // Press 'B' for bark
+    if (e.key === 'b' || e.key === 'B') {
+        barkBtn.click();
+    }
+});
+
+// Initialize
+createCards();
+
+console.log("FIDO Dog Library - Fixed and Working!");
+</script>
+</body>
+</html>
